@@ -1,4 +1,4 @@
-class LinkedList
+public class DoublyLinkedList
 {
     Node first;
     Node last;
@@ -7,8 +7,9 @@ class LinkedList
     {
         int key;
         Node next;
+        Node prev;
 
-        Node(int data) {key = data; next = null; }
+        Node(int data) {key = data; next = null; prev = null; }
     }
 
     public void insertFirst(int key)
@@ -16,11 +17,16 @@ class LinkedList
         Node newNode = new Node(key);
 
         if (first == null)
+        {
+            first = newNode;
             last = newNode;
+        }
         else
+        {
             newNode.next = first;
-
-        first = newNode;
+            first.prev = newNode;
+            first = newNode;
+        }
     }
 
     public void insertLast(int key)
@@ -28,11 +34,16 @@ class LinkedList
         Node newNode = new Node(key);
 
         if (last == null)
+        {
             first = newNode;
+            last = newNode;
+        }
         else
+        {
+            newNode.prev = last;
             last.next = newNode;
-
-        last = newNode;
+            last = newNode;
+        }
     }
 
     public Node searchNode(int givenKey)
@@ -59,10 +70,15 @@ class LinkedList
 
         Node newNode = new Node(givenKey);
 
+        newNode.prev = currentNode;
         newNode.next = currentNode.next;
+
+        if (currentNode.next != null)
+            currentNode.next.prev = newNode;
+
         currentNode.next = newNode;
 
-        if (currentNode == last)
+        if (last == currentNode)
             last = newNode;
     }
 
@@ -72,62 +88,46 @@ class LinkedList
             return;
 
         first = first.next;
+
+        if (first == null)
+            last = null;
+        else
+            first.prev = null;
     }
 
     public void deleteLast()
     {
-        Node toDelete = first;
-        Node previousNode = null;
-
-        if (toDelete == null)
+        if (last == null)
             return;
 
-        while (toDelete != last)
-        {
-            previousNode = toDelete;
-            toDelete = toDelete.next;
-        }
+        last = last.prev;
 
-        previousNode.next = null;
-        last = previousNode;
+        if (last == null)
+            first = null;
+        else
+            last.next = null;
     }
 
     public void deleteGivenKey(int givenKey)
     {
-        Node toDelete = first;
+        Node toDelete = searchNode(givenKey);
 
-        if (toDelete == null)
-            return;
-
-        Node previousNode = null;
-
-        while (toDelete != null)
-        {
-            if (toDelete.key == givenKey)
-                break;
-
-            previousNode = toDelete;
-            toDelete = toDelete.next;
-        }
-
-        if (toDelete == first)
-        {
-            first = first.next;
-
-            if (first == null)
-                last = null;
-        }
+        if (toDelete.prev != null)
+            toDelete.prev.next = toDelete.next;
         else
-        {
-            previousNode.next = toDelete.next;
+            first = toDelete.next;
 
-            if (toDelete == last)
-                last = previousNode;
-        }
+        if (toDelete.next != null)
+            toDelete.next.prev = toDelete.prev;
+        else
+            last = toDelete.prev;
     }
 
     public void printList()
     {
+        if (first == null)
+            return;
+
         System.out.println("My list is :");
 
         Node currentNode = first;
@@ -139,7 +139,7 @@ class LinkedList
         }
     }
 
-    public static void testsInsertion(LinkedList myList)
+    public static void testsInsertion(DoublyLinkedList myList)
     {
         myList.insertFirst(6);
         myList.insertFirst(7);
@@ -153,7 +153,7 @@ class LinkedList
         myList.printList();
     }
 
-    public static void testsSearch(LinkedList myList)
+    public static void testsSearch(DoublyLinkedList myList)
     {
         if (myList.searchNode(6) != null)
             System.out.println("The key was found.");
@@ -166,7 +166,7 @@ class LinkedList
             System.out.println("The key was not found.");
     }
 
-    public static void testsDeletion(LinkedList myList)
+    public static void testsDeletion(DoublyLinkedList myList)
     {
         myList.deleteFirst();
 
@@ -179,7 +179,7 @@ class LinkedList
 
     public static void main (String[] args)
     {
-        LinkedList myList = new LinkedList();
+        DoublyLinkedList myList = new DoublyLinkedList();
 
         testsInsertion(myList);
 
@@ -191,5 +191,6 @@ class LinkedList
         System.out.println();
 
         testsDeletion(myList);
+
     }
 }
